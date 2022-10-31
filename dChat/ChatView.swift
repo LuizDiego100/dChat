@@ -12,27 +12,59 @@ struct ChatView: View {
     let contact: Contact
     @StateObject var viewModel = ChatViewModel()
     
+    @State var textSize: CGSize = .zero
+    
+    @Namespace var bottomId
+    
     var body: some View {
         VStack {
-            ScrollView(showsIndicators: false) {
-                ForEach(viewModel.messages, id: \.self) { message in
-                    MessageRow(message: message)
+            ScrollViewReader { value in
+                ScrollView(showsIndicators: false) {
+                    ForEach(viewModel.messages, id: \.self) { message in
+                        MessageRow(message: message)
+                    }
+                    .onChange(of: viewModel.messages.count) { newValue in
+                        print("count is \(newValue)")
+                        withAnimation {
+                            value.scrollTo(bottomId)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    Color.clear
+                        .frame(height: 1)
+                        .id(bottomId)
                 }
             }
+            
             
             Spacer()
             
             HStack {
-                TextField("Digite a mensagem", text: $viewModel.text)
-                    .autocapitalization(.none)
-                    .disableAutocorrection(true)
-                    .padding()
-                    .background(Color.white)
-                    .cornerRadius(24.0)
-                    .overlay(RoundedRectangle(cornerRadius: 24.0)
-                        .stroke(Color(UIColor.separator), style: StrokeStyle(lineWidth: 1.0))
-                    )
-                
+                ZStack {
+                    TextEditor(text: $viewModel.text)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(24.0)
+                        .overlay(RoundedRectangle(cornerRadius: 24.0)
+                            .stroke(Color(UIColor.separator), style: StrokeStyle(lineWidth: 1.0))
+                        )
+                        .frame(maxHeight: (textSize.height + 50) > 100 ? 100 : textSize.height + 50)
+                    
+                    Text(viewModel.text)
+                        .opacity(0)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(ViewGeometry())
+                        .lineLimit(4)
+                        .multilineTextAlignment(.leading)
+                        .padding(.horizontal, 21)
+                        .onPreferenceChange(ViewSizeKey.self) { size in
+                            print("textSize is \(size)")
+                            textSize = size
+                        }
+                }
                 Button {
                     viewModel.sendMessage(contact: contact)
                 } label: {
@@ -53,6 +85,25 @@ struct ChatView: View {
             viewModel.onAppear(contact: contact)
         }
     }
+}
+
+struct ViewGeometry: View {
+    var body: some View {
+        GeometryReader { geometry in
+            Color.clear
+                .preference(key: ViewSizeKey.self, value: geometry.size)
+        }
+    }
+}
+
+struct ViewSizeKey: PreferenceKey {
+    static var defaultValue: CGSize = .zero
+    static func reduce(value: inout Value, nextValue: () -> Value) {
+        print("new value is \(value)")
+        value = nextValue()
+    }
+    
+    
 }
 
 struct MessageRow: View {

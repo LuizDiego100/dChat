@@ -67,6 +67,7 @@ struct ContactMessageRow: View {
                 Text(contact.name)
                 if let msg = contact.lastMessage {
                     Text(msg)
+                        .lineLimit(1)
                 }
             }
             Spacer()
