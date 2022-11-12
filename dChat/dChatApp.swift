@@ -21,3 +21,8 @@ struct dChatApp: App {
         }
     }
 }
+extension UIApplication {
+    func endEdit() {
+        sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+}
