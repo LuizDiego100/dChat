@@ -10,7 +10,7 @@ import SwiftUI
 struct ChatView: View {
     
     let contact: Contact
-    @StateObject var viewModel = ChatViewModel()
+    @StateObject var viewModel = ChatViewModel(repo: ChatRepository())
     
     @State var textSize: CGSize = .zero
     
@@ -18,6 +18,12 @@ struct ChatView: View {
     
     var body: some View {
         VStack {
+            /*
+            Image("LogoChatMessage")
+                        
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .padding()
+              */
             ScrollViewReader { value in
                 ScrollView(showsIndicators: false) {
                     Color.clear

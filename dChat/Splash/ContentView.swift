@@ -14,7 +14,7 @@ struct ContentView: View {
     var body: some View {
         ZStack {
         if viewModel.isLogged {
-            MessagesView()
+            MessageView()
         } else {
             SignInView()
         }

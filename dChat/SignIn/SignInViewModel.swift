@@ -19,21 +19,24 @@ class SignInViewModel: ObservableObject {
     
     @Published var isLoading = false
     
+    private let repo: SignInRepository
+    
+    init(repo: SignInRepository) {
+        self.repo = repo
+    }
+    
     func signIn() {
         print("email: \(email), senha: \(password)")
         
         isLoading = true
         
-        Auth.auth().signIn(withEmail: email, password: password) { result, err in
-            guard let user = result?.user, err == nil else {
+        repo.signIn(withEmail: email, password: password) { err in
+            if let err = err {
                 self.formInvalid = true
-                self.alertText = err!.localizedDescription
-                print(err)
-                self.isLoading = false
-                return
+                self.alertText = err
             }
             self.isLoading = false
-            print("usuario logado \(user.uid)")
         }
+        
     }
 }

@@ -1,20 +1,18 @@
 //
-//  MessagesViewModel.swift
+//  MessageRepository.swift
 //  dChat
 //
-//  Created by Luiz Andrade on 08/09/2022.
+//  Created by Luiz Andrade on 14/11/2022.
 //
 
 import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 
-class MessagesViewModel: ObservableObject {
+class MessageRepository {
     
-    @Published var isLoading = false
-    @Published var contacts: [Contact] = []
-    
-    func getContacts() {
+    func getContacts(completion: @escaping ([Contact]) -> Void) {
+        var contacts: [Contact] = []
         let fromId = Auth.auth().currentUser!.uid
         Firestore.firestore().collection("last-messages")
             .document(fromId)
@@ -25,8 +23,8 @@ class MessagesViewModel: ObservableObject {
                         if doc.type == .added {
                             let document = doc.document
                             
-                            self.contacts.removeAll()
-                            self.contacts.append(Contact(uuid: document.documentID,
+                            contacts.removeAll()
+                            contacts.append(Contact(uuid: document.documentID,
                                                          name: document.data()["username"] as! String,
                                                          profileUrl: document.data()["photoUrl"] as! String,
                                                          lastMessage: document.data()["lastMessage"] as! String,
@@ -34,10 +32,12 @@ class MessagesViewModel: ObservableObject {
                         }
                     }
                 }
+                completion(contacts)
             }
     }
     
     func logout() {
         try? Auth.auth().signOut()
     }
+    
 }

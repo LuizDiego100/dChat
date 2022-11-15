@@ -1,27 +1,22 @@
 //
-//  ChatViewModel.swift
+//  ChatRepository.swift
 //  dChat
 //
-//  Created by Luiz Andrade on 11/09/2022.
+//  Created by Luiz Andrade on 15/11/2022.
 //
 
 import Foundation
-import FirebaseAuth
 import FirebaseFirestore
+import FirebaseAuth
 
-class ChatViewModel: ObservableObject {
-    
-    @Published var messages: [Message] = []
-    
-    @Published var text = ""
+class ChatRepository {
     
     var myName = ""
     var myPhoto = ""
-    var inserting = false
-    var newCount = 0
-    let limit = 20
     
-    func onAppear(contact: Contact) {
+    var inserting = false
+    
+    func fetchChat(limit: Int, contact: Contact, lastMessage: Message?, completion: @escaping ([Message], Int) -> Void) {
         let fromId = Auth.auth().currentUser!.uid
         
         Firestore.firestore().collection("users")
@@ -38,11 +33,12 @@ class ChatViewModel: ObservableObject {
                 }
             }
         
+        var messages: [Message] = []
         Firestore.firestore().collection("conversations")
             .document(fromId)
             .collection(contact.uuid)
             .order(by: "timestamp", descending: true)
-            .start(after: [self.messages.last?.timestamp ?? 9999999999999])
+            .start(after: [lastMessage?.timestamp ?? 9999999999999])
             .limit(to: limit)
             .addSnapshotListener { querySnapshot, error in
                 if let error = error {
@@ -62,24 +58,22 @@ class ChatViewModel: ObservableObject {
                                                   timestamp: document.data()["timestamp"] as! UInt)
                             
                             if self.inserting {
-                                self.messages.insert(message, at: 0)
+                                messages.insert(message, at: 0)
                             } else {
-                                self.messages.append(message)
+                                messages.append(message)
                             }
                         }
                     }
                     print("--------")
                     self.inserting = false
                 }
-                self.newCount = self.messages.count
+                let newCount = messages.count
+                completion(messages, newCount)
             }
     }
     
-    func sendMessage(contact: Contact) {
-        let text = self.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        inserting = true
-        newCount = newCount + 1
-        self.text = ""
+    func sendMessage(inserting: Bool, text: String, contact: Contact) {
+        self.inserting = inserting
         let fromId = Auth.auth().currentUser!.uid
         let timestamp = Date().timeIntervalSince1970
         
@@ -106,7 +100,7 @@ class ChatViewModel: ObservableObject {
                         "username": contact.name,
                         "photoUrl": contact.profileUrl,
                         "timestamp": UInt(timestamp),
-                        "lastMessage": self.text
+                        "lastMessage": text
                     ])
             }
         
@@ -133,7 +127,7 @@ class ChatViewModel: ObservableObject {
                         "username": self.myName,
                         "photoUrl": self.myPhoto,
                         "timestamp": UInt(timestamp),
-                        "lastMessage": self.text
+                        "lastMessage": text
                     ])
             }
     }
