@@ -233,6 +233,8 @@
 			dependencies = (
 			);
 			name = dChat;
+			packageProductDependencies = (
+			);
 			productName = dChat;
 			productReference = 0700F9BA28C281A9001E3991 /* dChat.app */;
 			productType = "com.apple.product-type.application";
@@ -261,6 +263,9 @@
 				Base,
 			);
 			mainGroup = 0700F9B128C281A9001E3991;
+			packageReferences = (
+				0787C769292ADDF7006E4C27 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			productRefGroup = 0700F9BB28C281A9001E3991 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -553,6 +558,17 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0787C769292ADDF7006E4C27 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 	};
 	rootObject = 0700F9B228C281A9001E3991 /* Project object */;
 }

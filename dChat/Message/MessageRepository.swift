@@ -19,11 +19,11 @@ class MessageRepository {
             .collection("contacts")
             .addSnapshotListener { snapshot, error in
                 if let changes = snapshot?.documentChanges {
+                    
                     for doc in changes {
                         if doc.type == .added {
                             let document = doc.document
                             
-                            contacts.removeAll()
                             contacts.append(Contact(uuid: document.documentID,
                                                          name: document.data()["username"] as! String,
                                                          profileUrl: document.data()["photoUrl"] as! String,

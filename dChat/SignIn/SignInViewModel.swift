@@ -37,6 +37,5 @@ class SignInViewModel: ObservableObject {
             }
             self.isLoading = false
         }
-        
     }
 }

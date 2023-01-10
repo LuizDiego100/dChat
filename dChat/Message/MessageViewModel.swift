@@ -16,15 +16,22 @@ class MessageViewModel: ObservableObject {
     
     private let repo: MessageRepository
     
+    private var handleEnabled = true
+    
     init(repo: MessageRepository) {
         self.repo = repo
     }
     
     func getContacts() {
         repo.getContacts { contacts in
-            self.contacts.removeAll()
-            self.contacts = contacts
+            if self.handleEnabled {
+                self.contacts = contacts
+            }
         }
+    }
+    
+    func handleEnabled(enabled: Bool) {
+        self.handleEnabled = enabled
     }
     
     func logout() {

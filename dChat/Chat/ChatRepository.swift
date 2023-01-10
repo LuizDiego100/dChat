@@ -14,9 +14,7 @@ class ChatRepository {
     var myName = ""
     var myPhoto = ""
     
-    var inserting = false
-    
-    func fetchChat(limit: Int, contact: Contact, lastMessage: Message?, completion: @escaping ([Message], Int) -> Void) {
+    func fetchChat(limit: Int, contact: Contact, lastMessage: Message?, completion: @escaping (Message) -> Void) {
         let fromId = Auth.auth().currentUser!.uid
         
         Firestore.firestore().collection("users")
@@ -57,23 +55,16 @@ class ChatRepository {
                                                   isMe: fromId == document.data()["fromId"] as! String,
                                                   timestamp: document.data()["timestamp"] as! UInt)
                             
-                            if self.inserting {
-                                messages.insert(message, at: 0)
-                            } else {
-                                messages.append(message)
-                            }
+                            completion(message)
+                            
                         }
                     }
                     print("--------")
-                    self.inserting = false
                 }
-                let newCount = messages.count
-                completion(messages, newCount)
             }
     }
     
-    func sendMessage(inserting: Bool, text: String, contact: Contact) {
-        self.inserting = inserting
+    func sendMessage(text: String, contact: Contact) {
         let fromId = Auth.auth().currentUser!.uid
         let timestamp = Date().timeIntervalSince1970
         
